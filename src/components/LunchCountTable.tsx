@@ -80,9 +80,9 @@ const LunchCountTable = () => {
 
   return (
     <div>
-      <h2>Lunch Count Data</h2>
+      <h2 className="heading">Lunch Count Data</h2>
 
-      <div>
+      <div className="filter-container">
         <label htmlFor="fromDate">From Date: </label>
         <input
           type="date"
@@ -101,9 +101,9 @@ const LunchCountTable = () => {
           onChange={(e) => setToDate(e.target.value)}
         />
 
-        <button onClick={handleFilter}>Apply Filter</button>
+        <button className="btn" onClick={handleFilter}>Apply Filter</button>
         {filterApplied && (
-          <button onClick={handleReset} style={{ marginLeft: "10px" }}>
+          <button className="back-btn" onClick={handleReset} style={{ marginLeft: "10px" }}>
             Back
           </button>
         )}
