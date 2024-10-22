@@ -19,8 +19,8 @@ div {
   }
   
   .filter-container {
-    width: 100%;
-    max-width: 900px;
+    width: 80%;
+    max-width: 800px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -78,7 +78,18 @@ div {
   .back-btn:hover {
     background-color: #c82333;
   }
+
+  .pagination {
+    display: flex;
+    flex-direction: row  ;
+  }
+
+  .active-page {
+    color: gray;
+  }
   
+ 
+
   table {
     width: 100%;
     border-collapse: collapse;

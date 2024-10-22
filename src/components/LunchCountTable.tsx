@@ -1,9 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react";
 import axios from "axios";
-import './TableStyle.css'
+import './TableStyle.css';
 
 interface Users {
+  id:number;
   userName: string;
   response: string;
   timestamp: string;
@@ -18,6 +18,9 @@ const LunchCountTable = () => {
   const [toDate, setToDate] = useState<string>("");
   const [filterApplied, setFilterApplied] = useState(false); 
 
+  const [currentPage, setCurrentPage] = useState(1); // State for current page
+  const [itemsPerPage] = useState(10); // Set items per page (you can adjust this)
+
   useEffect(() => {
     const fetchLunchCountData = async () => {
       try {
@@ -28,6 +31,7 @@ const LunchCountTable = () => {
       } catch (err) {
         setError("Error fetching lunch count data");
         setLoading(false);
+        console.log("Error fetching data", err);
       }
     };
 
@@ -37,20 +41,27 @@ const LunchCountTable = () => {
   const handleFilter = () => {
     if (!fromDate || !toDate) {
       setFilteredData(lunchCounts);
-      setFilterApplied(false); 
+      setFilterApplied(false);
       return;
     }
-
     const from = new Date(fromDate).getTime();
     const to = new Date(toDate).getTime();
-
     const filtered = lunchCounts.filter((item) => {
       const itemDate = new Date(item.timestamp).getTime();
       return itemDate >= from && itemDate <= to;
     });
-
     setFilteredData(filtered);
-    setFilterApplied(true); 
+    setFilterApplied(true);
+    setCurrentPage(1); // Reset page on filter
+  };
+
+  const handleMessage = async () => {
+    try {
+      await axios.post("http://localhost:3000/api/send");
+      alert('Message sent successfully');
+    } catch (err) {
+      console.log("Error fetching data", err);
+    }
   };
 
   const countYesResponsesPerUser = () => {
@@ -65,10 +76,18 @@ const LunchCountTable = () => {
 
   const handleReset = () => {
     setFilteredData(lunchCounts);
-    setFilterApplied(false); 
-    setFromDate(""); 
+    setFilterApplied(false);
+    setFromDate("");
     setToDate("");
+    setCurrentPage(1); // Reset page on reset
   };
+
+  // Pagination Logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   if (loading) {
     return <p>Loading...</p>;
@@ -102,6 +121,8 @@ const LunchCountTable = () => {
         />
 
         <button className="btn" onClick={handleFilter}>Apply Filter</button>
+        <button className="btn" onClick={handleMessage}>Send message</button>
+
         {filterApplied && (
           <button className="back-btn" onClick={handleReset} style={{ marginLeft: "10px" }}>
             Back
@@ -111,12 +132,12 @@ const LunchCountTable = () => {
 
       {filterApplied ? (
         <div>
-          <p>Total "Yes" Responses :{filteredData.filter((item) => item.response.toLowerCase() === "yes").length}</p>
+          <p>Total "Yes" Responses: {filteredData.filter((item) => item.response.toLowerCase() === "yes").length}</p>
           <table cellPadding="10">
             <thead>
               <tr>
                 <th>User Name</th>
-                <th>Yes Responses Count</th>
+                <th>Yes Responses</th>
               </tr>
             </thead>
             <tbody>
@@ -135,14 +156,16 @@ const LunchCountTable = () => {
           <table cellPadding="10">
             <thead>
               <tr>
+              <th>S.No</th>
                 <th>User Name</th>
                 <th>Response</th>
                 <th>Timestamp</th>
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((lunchCount, index) => (
+              {currentItems.map((lunchCount, index) => (
                 <tr key={index}>
+                  <td>{lunchCount.id}</td>
                   <td>{lunchCount.userName}</td>
                   <td>{lunchCount.response}</td>
                   <td>{new Date(lunchCount.timestamp).toLocaleString()}</td>
@@ -152,6 +175,19 @@ const LunchCountTable = () => {
           </table>
         </div>
       )}
+
+      {/* Pagination Component */}
+      <div className="pagination">
+        {[...Array(Math.ceil(filteredData.length / itemsPerPage))].map((_, index) => (
+          <button
+            key={index}
+            onClick={() => paginate(index + 1)}
+            className={index + 1 === currentPage ? 'active-page' : ''}
+          >
+            {index + 1}
+          </button>
+        ))}
+      </div>
     </div>
   );
 };
