@@ -1,13 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import './TableStyle.css';
-
-interface Users {
-  id:number;
-  userName: string;
-  response: string;
-  timestamp: string;
-}
+import "./TableStyle.css";
+import { Users } from "../Types/User";
+ import { useNavigate } from "react-router-dom";
 
 const LunchCountTable = () => {
   const [lunchCounts, setLunchCounts] = useState<Users[]>([]);
@@ -16,17 +11,21 @@ const LunchCountTable = () => {
   const [error, setError] = useState("");
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
-  const [filterApplied, setFilterApplied] = useState(false); 
+  const [filterApplied, setFilterApplied] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20);
+   const navigate = useNavigate();
 
-  const [currentPage, setCurrentPage] = useState(1); // State for current page
-  const [itemsPerPage] = useState(10); // Set items per page (you can adjust this)
 
   useEffect(() => {
     const fetchLunchCountData = async () => {
       try {
         const response = await axios.get("http://localhost:3000/api/count");
-        setLunchCounts(response.data);
-        setFilteredData(response.data);
+        const sortedData = response.data.sort(
+          (a: Users, b: Users) => a.id - b.id
+        );
+        setLunchCounts(sortedData);
+        setFilteredData(sortedData);
         setLoading(false);
       } catch (err) {
         setError("Error fetching lunch count data");
@@ -44,34 +43,48 @@ const LunchCountTable = () => {
       setFilterApplied(false);
       return;
     }
-    const from = new Date(fromDate).getTime();
-    const to = new Date(toDate).getTime();
+    const from = new Date(fromDate).setHours(0, 0, 0, 0);
+    const to = new Date(toDate).setHours(23, 59, 59, 999);
+    const isSameDay = fromDate === toDate;
     const filtered = lunchCounts.filter((item) => {
       const itemDate = new Date(item.timestamp).getTime();
+      if (isSameDay) {
+        const startOfDay = new Date(fromDate).setHours(0, 0, 0, 0);
+        const endOfDay = new Date(fromDate).setHours(23, 59, 59, 999);
+        return itemDate >= startOfDay && itemDate <= endOfDay;
+      }
       return itemDate >= from && itemDate <= to;
     });
     setFilteredData(filtered);
     setFilterApplied(true);
-    setCurrentPage(1); // Reset page on filter
+    setCurrentPage(1);
   };
 
   const handleMessage = async () => {
     try {
       await axios.post("http://localhost:3000/api/send");
-      alert('Message sent successfully');
+      alert("Message sent successfully");
     } catch (err) {
       console.log("Error fetching data", err);
     }
   };
 
-  const countYesResponsesPerUser = () => {
-    const counts: { [key: string]: number } = {};
+  const handleTotalAmount = () => {
+    const userData: {
+      [key: string]: { yesCount: number; totalAmount: number };
+    } = {};
+
     filteredData.forEach((item) => {
+      if (!userData[item.userName]) {
+        userData[item.userName] = { yesCount: 0, totalAmount: 0 };
+      }
       if (item.response.toLowerCase() === "yes") {
-        counts[item.userName] = (counts[item.userName] || 0) + 1;
+        userData[item.userName].yesCount += 1;
+        userData[item.userName].totalAmount += item.amount;
       }
     });
-    return counts;
+
+    return userData;
   };
 
   const handleReset = () => {
@@ -79,10 +92,9 @@ const LunchCountTable = () => {
     setFilterApplied(false);
     setFromDate("");
     setToDate("");
-    setCurrentPage(1); // Reset page on reset
+    setCurrentPage(1);
   };
 
-  // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
@@ -100,7 +112,16 @@ const LunchCountTable = () => {
   return (
     <div>
       <h2 className="heading">Lunch Count Data</h2>
-
+      <button className="btn" onClick={handleMessage}>
+        Send message
+      </button>
+      <button
+              style={{marginTop:'5px'}}
+              className="btn"
+              onClick={()=>{navigate("/report")}}
+            >
+              Report
+            </button>
       <div className="filter-container">
         <label htmlFor="fromDate">From Date: </label>
         <input
@@ -109,7 +130,6 @@ const LunchCountTable = () => {
           value={fromDate}
           onChange={(e) => setFromDate(e.target.value)}
         />
-
         <label htmlFor="toDate" style={{ marginLeft: "10px" }}>
           To Date:{" "}
         </label>
@@ -120,45 +140,68 @@ const LunchCountTable = () => {
           onChange={(e) => setToDate(e.target.value)}
         />
 
-        <button className="btn" onClick={handleFilter}>Apply Filter</button>
-        <button className="btn" onClick={handleMessage}>Send message</button>
+        <button className="btn" onClick={handleFilter}>
+          Apply Filter
+        </button>
+
+     
 
         {filterApplied && (
-          <button className="back-btn" onClick={handleReset} style={{ marginLeft: "10px" }}>
-            Back
-          </button>
+          <>
+          
+
+            <button
+              className="back-btn"
+              onClick={handleReset}
+              style={{ marginLeft: "10px" }}
+            >
+              Back
+            </button>
+          </>
         )}
       </div>
 
       {filterApplied ? (
         <div>
-          <p>Total "Yes" Responses: {filteredData.filter((item) => item.response.toLowerCase() === "yes").length}</p>
+          <p>
+            Total "Yes" Responses:{" "}
+            {
+              filteredData.filter(
+                (item) => item.response.toLowerCase() === "yes"
+              ).length
+            }
+          </p>
           <table cellPadding="10">
             <thead>
               <tr>
                 <th>User Name</th>
                 <th>Yes Responses</th>
+                <th>Total Amount</th>
               </tr>
             </thead>
             <tbody>
-              {Object.entries(countYesResponsesPerUser()).map(([userName, count]) => (
-                <tr key={userName}>
-                  <td>{userName}</td>
-                  <td>{count}</td>
-                </tr>
-              ))}
+              {Object.entries(handleTotalAmount()).map(
+                ([userName, { yesCount, totalAmount }]) => (
+                  <tr key={userName}>
+                    <td>{userName}</td>
+                    <td>{yesCount}</td>
+                    <td>{totalAmount}</td>
+                  </tr>
+                )
+              )}
             </tbody>
           </table>
         </div>
       ) : (
         <div>
-          <p>Total "Yes" Responses: {filteredData.filter((item) => item.response.toLowerCase() === "yes").length}</p>
+        
           <table cellPadding="10">
             <thead>
               <tr>
-              <th>S.No</th>
+                <th>S.No</th>
                 <th>User Name</th>
                 <th>Response</th>
+                <th>Amount</th>
                 <th>Timestamp</th>
               </tr>
             </thead>
@@ -168,6 +211,7 @@ const LunchCountTable = () => {
                   <td>{lunchCount.id}</td>
                   <td>{lunchCount.userName}</td>
                   <td>{lunchCount.response}</td>
+                  <td>{lunchCount.amount}</td>
                   <td>{new Date(lunchCount.timestamp).toLocaleString()}</td>
                 </tr>
               ))}
@@ -176,17 +220,18 @@ const LunchCountTable = () => {
         </div>
       )}
 
-      {/* Pagination Component */}
       <div className="pagination">
-        {[...Array(Math.ceil(filteredData.length / itemsPerPage))].map((_, index) => (
-          <button
-            key={index}
-            onClick={() => paginate(index + 1)}
-            className={index + 1 === currentPage ? 'active-page' : ''}
-          >
-            {index + 1}
-          </button>
-        ))}
+        {[...Array(Math.ceil(filteredData.length / itemsPerPage))].map(
+          (_, index) => (
+            <button
+              key={index}
+              onClick={() => paginate(index + 1)}
+              className={index + 1 === currentPage ? "active-page" : ""}
+            >
+              {index + 1}
+            </button>
+          )
+        )}
       </div>
     </div>
   );
