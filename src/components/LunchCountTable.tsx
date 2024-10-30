@@ -110,7 +110,7 @@ const LunchCountTable = () => {
   }
 
   return (
-    <div>
+    <div className="container">
       <h2 className="heading">Lunch Count Data</h2>
       <button className="btn" onClick={handleMessage}>
         Send message
@@ -148,10 +148,9 @@ const LunchCountTable = () => {
 
         {filterApplied && (
           <>
-          
-
+        
             <button
-              className="back-btn"
+              className="btn"
               onClick={handleReset}
               style={{ marginLeft: "10px" }}
             >
@@ -163,7 +162,7 @@ const LunchCountTable = () => {
 
       {filterApplied ? (
         <div>
-          <p>
+          <p className="response-count">
             Total "Yes" Responses:{" "}
             {
               filteredData.filter(
@@ -171,7 +170,7 @@ const LunchCountTable = () => {
               ).length
             }
           </p>
-          <table cellPadding="10">
+          <table className="table-container" cellPadding="10">
             <thead>
               <tr>
                 <th>User Name</th>
@@ -193,9 +192,8 @@ const LunchCountTable = () => {
           </table>
         </div>
       ) : (
-        <div>
-        
-          <table cellPadding="10">
+        <div >
+          <table className="table-container" cellPadding="10">
             <thead>
               <tr>
                 <th>S.No</th>
