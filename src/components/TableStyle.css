@@ -1,131 +1,139 @@
 .container {
-     margin:  auto; 
-    margin-top: 5px;
-    max-width: 1200px;
-    font-family: 'Arial', sans-serif;
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .heading {
-    text-align: center;
-    color: #333;
-    font-size: 28px;
-    margin-bottom: 20px;
-  }
-  
+  margin: auto;
+  margin-top: 5px;
+  max-width: 1200px;
+  font-family: "Arial", sans-serif;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.heading {
+  text-align: center;
+  color: #333;
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+.filter-container {
+  width: 80%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  margin-top: 20px;
+}
+
+input[type="date"] {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 150px;
+  margin-right: 10px;
+  max-width: 200px;
+}
+
+.btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #173605;
+}
+
+.pagination {
+  display: flex;
+  flex-direction: row;
+}
+
+.active-page {
+  color: gray;
+}
+
+.table-container {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+th,
+td {
+  padding: 12px;
+  text-align: left;
+  font-size: 14px;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #007bff;
+  color: white;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.response-count {
+  font-size: 16px;
+  color: #555;
+  margin: 10px 0;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
   .filter-container {
-    width: 80%;
-    max-width: 800px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    margin-top: 20px;
+    flex-direction: column;
+    align-items: flex-start;
   }
-  
-  input[type="date"] {
-    padding: 10px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 150px;
-    margin-right: 10px;
-    max-width: 200px;
-  }
-  
+
+  input[type="date"],
   .btn {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
-  }
-  
-  .btn:hover {
-    background-color: #173605;
-  }
-  
-
-  .pagination {
-    display: flex;
-    flex-direction: row  ;
+    width: 50%;
+    margin: auto;
   }
 
-  .active-page {
-    color: gray;
+  table,
+  th,
+  td {
+    font-size: 12px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  h2 {
+    font-size: 22px;
   }
 
-  .table-container {
-    width: 100%;
-    border-collapse: collapse;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  table,
+  th,
+  td {
+    font-size: 10px;
+    padding: 8px;
   }
-  
-  
-
-  th {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
-  tbody tr:hover {
-    background-color: #f1f1f1;
-  }
-  
-  tbody tr:last-child td {
-    border-bottom: none;
-  }
-  
-  .response-count {
-    font-size: 16px;
-    color: #555;
-     margin: 10px 0; 
-    text-align: center;
-  }
-  
-  
-  @media (max-width: 768px) {
-    .filter-container {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  
-    input[type="date"],
-    .btn {
-      width:50%;
-      margin: auto;
-    }
-  
-    table, th, td {
-      font-size: 12px;
-      padding: 10px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    h2 {
-      font-size: 22px;
-    }
-  
-    table, th, td {
-      font-size: 10px;
-      padding: 8px;
-    }
-  }
-  
+}
